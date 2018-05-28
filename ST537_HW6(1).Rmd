@@ -1,0 +1,65 @@
+---
+title: "ST537_HW6"
+author: "Zun Yin"
+date: "2018.4.17"
+output: html_document
+---
+2.
+```{r}
+library(geepack)
+library(gee)
+```
+
+```{r}
+#Import Data
+mil = read.table("mil.txt")
+```
+
+```{r}
+#Convert data into desirable form
+corp = rep(1,20)
+for (i in (2:10)){
+  corp = c(corp,rep(i,20))
+}
+
+yr= rep(seq(1875,1894,1),10)
+
+killed = c(mil$V2,mil$V3,mil$V4,mil$V5,mil$V6,
+           mil$V7,mil$V8,mil$V9,mil$V10,mil$V11)
+```
+
+```{r}
+newmil = data.frame(year = as.factor(yr), 
+                    corp = as.factor(corp),
+                    kill = killed)
+```
+
+ii.
+```{r}
+#The model is written in this way in R. Only main effect means there is no interaction
+model = glm(newmil$kill ~ newmil$corp + newmil$year, data = newmil, family = poisson(link="log"))
+```
+
+iii.
+```{r}
+#Essentially doing hypothesis tests for full vs. reduced model
+model1 = glm(newmil$kill ~ newmil$corp, data = newmil, family = poisson(link="log"))
+anova(model,model1,test="LRT")
+
+model2 = glm(newmil$kill ~ newmil$year, data = newmil, family = poisson(link="log"))
+anova(model,model2,test="LRT")
+```
+
+Since both p-values are greater than 0.05, I conclude that neither of year and corp has effects on horse kills.
+iv.
+```{r}
+summary(model)
+```
+
+The year1880 variable has a p-value < 0.05. That means the difference between horse kick deaths between 1875 and 1880 are (arguably) significant. So those two years have different effects.
+
+
+
+
+
+
